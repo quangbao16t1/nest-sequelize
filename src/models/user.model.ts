@@ -1,53 +1,74 @@
-import { AllowNull, Column, IsEmail, Model, NotNull, Table } from "sequelize-typescript";
+import {
+  AllowNull,
+  BelongsTo,
+  Column,
+  CreatedAt,
+  ForeignKey,
+  HasMany,
+  IsEmail,
+  Model,
+  NotNull,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
+import { Role } from "./role.model";
 
-@Table
+@Table({ tableName: "users" })
 export class User extends Model {
-    @Column({
-        primaryKey: true
-    })
-    id: number;
+  @Column({
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  })
+  id: number;
 
-    @Column
-    firstName: string;
+  @Column
+  firstName: string;
 
-    @Column
-    lastName: string;
+  @Column
+  lastName: string;
 
-    @Column
-    age: number;
+  @Column
+  age: number;
 
-    @IsEmail
-    @AllowNull(false)
-    @Column
-    email: string;
+  @IsEmail
+  @AllowNull(false)
+  @Column
+  email: string;
 
-    @AllowNull(false)
-    @Column
-    password: string;
+  @AllowNull(false)
+  @Column
+  password: string;
 
-    @Column
-    avatar: string;
+  @Column
+  avatar: string;
 
-    @Column
-    address: string;
+  @Column
+  address: string;
 
-    @Column
-    gender: number;
+  @Column
+  gender: string;
 
-    @Column
-    phoneNumber: string;
+  @Column
+  phoneNumber: string;
 
-    @Column
-    birthday: Date;
+  @Column
+  birthday: Date;
 
-    @Column
-    roleId: number;
+  @ForeignKey(() => Role)
+  @Column
+  roleId: number;
 
-    @AllowNull(true)
-    @Column
-    createdAt?: Date;
+  @AllowNull(true)
+  @CreatedAt
+  @Column
+  createdAt?: Date;
 
-    @AllowNull(true)
-    @Column
-    updatedAt?: Date;
+  @UpdatedAt
+  @AllowNull(true)
+  @Column
+  updatedAt?: Date;
+
+  @BelongsTo(() => Role)
+  role: Role;
 }

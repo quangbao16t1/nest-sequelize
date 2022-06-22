@@ -1,4 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from "@nestjs/common";
+import { User } from "src/models/user.model";
 
 @Injectable()
-export class AuthService {}
+export class AuthService {
+    // constructor(
+    //     @Inject('USER_REPOSITORY')
+    //     private userRepository: typeof User
+    // ) { }
+
+
+}
