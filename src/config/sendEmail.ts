@@ -1,15 +1,16 @@
 import nodemailer from 'nodemailer';
 import { OAuth2Client } from 'google-auth-library';
 
-const OAUTH_PLAYGROUND = 'https://developers.google.com/oauthplayground';
-
-const CLIENT_ID = `${process.env.MAIL_CLIENT_ID}`
-const CLIENT_SECRET = `${process.env.MAIL_CLIENT_SECRET}`
-const REFRESH_TOKEN = `${process.env.MAIL_REFRESH_TOKEN}`
-const SENDER_MAIL = `${process.env.SENDER_EMAIL_ADDRESS}`
-
 //send mail
 const sendEmail = async (to, url, txt) => {
+
+  const OAUTH_PLAYGROUND = 'https://developers.google.com/oauthplayground';
+
+  const CLIENT_ID = `${process.env.MAIL_CLIENT_ID}`
+  const CLIENT_SECRET = `${process.env.MAIL_CLIENT_SECRET}`
+  const REFRESH_TOKEN = `${process.env.MAIL_REFRESH_TOKEN}`
+  const SENDER_MAIL = process.env.SENDER_EMAIL_ADDRESS;
+
   const oAuth2Client = new OAuth2Client(
     CLIENT_ID,
     CLIENT_SECRET,
