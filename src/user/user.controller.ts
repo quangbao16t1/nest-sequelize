@@ -1,31 +1,88 @@
-import { Body, Controller, Get, HttpStatus, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { VerifyToken } from "src/config/verifyToken";
 import { User } from "src/models/user.model";
 import { UserService } from "./user.service";
 import * as jwt from 'jsonwebtoken';
 import { FileInterceptor } from "@nestjs/platform-express";
+import { UploadImgService } from "src/upload-img/upload-img.service";
+import { CreateUserDto } from "src/dto/user.dto";
+import { response } from "express";
+import {getPagingData } from "src/config/pagination";
 
 @Controller("user")
 export class UserController {
-  constructor(private readonly userSevice: UserService) { }
+  constructor(
+    private readonly userSevice: UserService,
+  ) { }
 
-  @Get()
-  async getAllUser(@Res() response) {
-    const listUser = await this.userSevice.getAllUser();
-    return response.status(HttpStatus.OK).json({
-      result: listUser,
-      message: "Successfully!!!",
-    });
-  }
+  // @Get()
+  // async getAllUser(@Res() response) {
+  //   const listUser = await this.userSevice.getAllUser();
+  //   return response.status(HttpStatus.OK).json({
+  //     result: listUser,
+  //     message: "Successfully!!!",
+  //   });
+  // }
 
   @Post('/new')
-  async createUser(@Res() response, @Body() user: User) {
-    const result = await this.userSevice.createUser(user);
-    return response.status(HttpStatus.CREATED).json({
-      result: result,
-      message: "Created Successfully!!!",
-    })
+  async createUser(@Res() response, @Body() user: CreateUserDto) {
+    console.log("user", user);
+    try {
+      const result = await this.userSevice.createUser(user);
+      return response.status(HttpStatus.CREATED).json({
+        result: result,
+        message: "Created Successfully!!!",
+      })
+    } catch (error) {
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error.message,
+      })
+    }
   }
+
+  @Get()
+  async getAllUsers(
+    @Res() response,
+    @Query('lastName') lastName: string,
+    @Query('size') size: number,
+    @Query('page') page: number,
+    
+  ) {
+    try {
+
+      let offset = 0 + (page - 1) * size;
+      console.log(size, page, offset);
+
+      const listUser = await this.userSevice.getAllUsers(lastName, Number(size), offset );
+      console.log("length", listUser);
+      const result = getPagingData(listUser, page, size); 
+
+      return response.status(HttpStatus.OK).json({
+        message: "Success",
+        result: result
+      })
+    } catch (error) {
+      return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error.message,
+      })
+    }
+  }
+
+  @Get('/:id')
+  async getUserById(@Res() response, @Param('id') id: number) {
+    try {
+      const result = await this.userSevice.getUserById(id);
+      response.status(HttpStatus.OK).json({
+        message: " Successfully!!!",
+        result: result
+      })
+    } catch (error) {
+      response.json({
+        message: error.message
+      })
+    }
+  }
+
 
   @Post('/register')
   async register(@Res() response, @Body() user: User) {
@@ -125,7 +182,7 @@ export class UserController {
 
       const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
-      await this.userSevice.resetPassword(password, decoded.user.id);  
+      await this.userSevice.resetPassword(password, decoded.user.id);
       response.status(HttpStatus.OK).json({
         message: "Password successfully changed."
       });

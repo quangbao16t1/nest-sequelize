@@ -1,12 +1,12 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { User } from "src/models/user.model";
 import * as bcrypt from "bcrypt";
 import { generateAccessToken, generateActiveToken, generateRefreshToken } from "src/config/generateToken";
 import sendEmail from "src/config/sendEmail";
 import * as jwt from 'jsonwebtoken';
-import { UploadImgService } from "src/upload-img/upload-img.service";
-import { UploadApiErrorResponse, UploadApiResponse, v2 } from "cloudinary";
-import toStream from 'buffer-to-stream';
+import { CreateUserDto } from "src/dto/user.dto";
+import sequelize from "sequelize";
+
 
 @Injectable()
 export class UserService {
@@ -19,7 +19,7 @@ export class UserService {
     return await this.userRepository.findAll<User>();
   }
 
-  async createUser(user: User) {
+  async createUser(user: CreateUserDto) {
     const newUser = await this.userRepository.findOne({
       where: { email: user.email },
     });
@@ -34,7 +34,36 @@ export class UserService {
       userCreate.password = await bcrypt.hashSync(user.password, 8);
     }
 
-    await userCreate.save();
+    // await this.userRepository.create(userCreate);
+    userCreate.save();
+  }
+
+  async updateAvatar(avt: string, id: number) {
+    const userUpdate = await this.userRepository.findOne({ where: { id: id } });
+    if (!userUpdate) throw new Error('User doesnt exists.')
+    const result = userUpdate.update({ avatar: avt });
+    if (!result) throw new Error("Cant update avatar!")
+    return result;
+  }
+
+  async getAllUsers(lastName: string, size: number, offset: number) {
+    const Op = sequelize.Op;
+    // if(keyword === null) return await this.userRepository.findAll({});
+   return await this.userRepository.findAndCountAll({
+      where: {
+        lastName: {
+          [Op.like]: `%${lastName}%`
+        }
+      },
+      limit: size,
+      offset: offset
+    });
+  }
+
+  async getUserById(id) {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new Error('not found');
+    return user;
   }
 
   async register(user: User) {
@@ -131,10 +160,10 @@ export class UserService {
 
       if (!user) throw new Error(`This email ${email} does not exist!!!`);
 
-      const access_token = generateAccessToken({user});
+      const access_token = generateAccessToken({ user });
 
       const url = `${process.env.BASE_URL}/reset/${access_token}`
-      
+
       console.log(access_token);
 
       sendEmail(email, url, 'Reset your password')

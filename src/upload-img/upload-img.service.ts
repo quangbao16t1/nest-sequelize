@@ -1,8 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
-import toStream from 'buffer-to-stream';
 import { Readable } from 'stream';
-import { url } from 'inspector';
 
 @Injectable()
 export class UploadImgService {
