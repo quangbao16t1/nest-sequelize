@@ -19,23 +19,22 @@ export class UserService {
     return await this.userRepository.findAll<User>();
   }
 
-  async createUser(user: CreateUserDto) {
+  async createUser(user: CreateUserDto): Promise<User> {
     const newUser = await this.userRepository.findOne({
       where: { email: user.email },
     });
     if (newUser) {
-      throw `Email ${user.email} is allready exits!`;
+      throw new Error(`Email ${user.email} is allready exits!`);
     }
-    const userCreate = new User();
-
-    Object.assign(userCreate, user);
 
     if (user.password) {
-      userCreate.password = await bcrypt.hashSync(user.password, 8);
+      user.password = await bcrypt.hashSync(user.password, 8);
     }
 
-    // await this.userRepository.create(userCreate);
-    userCreate.save();
+    user.createdAt = new Date();
+
+    return await this.userRepository.create(user);
+    // return user.save();
   }
 
   async updateAvatar(avt: string, id: number) {
@@ -49,7 +48,7 @@ export class UserService {
   async getAllUsers(lastName: string, size: number, offset: number) {
     const Op = sequelize.Op;
     // if(keyword === null) return await this.userRepository.findAll({});
-   return await this.userRepository.findAndCountAll({
+    return await this.userRepository.findAndCountAll({
       where: {
         lastName: {
           [Op.like]: `%${lastName}%`
@@ -64,6 +63,26 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { id: id } });
     if (!user) throw new Error('not found');
     return user;
+  }
+
+  async updateUser(user: User, id: number) {
+    const userUpdate = await this.userRepository.findOne({ where: { id: id } });
+    if (!userUpdate) throw new Error("User not found.");
+
+    if (user.password) {
+      user.password = bcrypt.hashSync(user.password, 8);
+    }
+    user.updatedAt = new Date();
+
+    Object.assign(userUpdate, user);
+    return await userUpdate.save();
+  }
+
+  async deleteUser(id: number) {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new Error('User not found.');
+
+    return await this.userRepository.destroy({ where: { id: user.id } });
   }
 
   async register(user: User) {

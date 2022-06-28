@@ -3,11 +3,11 @@ import { AnyFilesInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/
 import { UploadImgService } from './upload-img.service';
 import uploadCloud from 'src/config/cloudinary.config';
 
-@Controller('upload-img')
+@Controller('upload')
 export class UploadImgController {
     constructor(private readonly uploadImgService: UploadImgService) { }
 
-    @Post('upload')
+    @Post('one')
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(@UploadedFile() file: Express.Multer.File, @Res() response) {
         const result = await this.uploadImgService.uploadImageToCloudinary(file);
@@ -16,7 +16,7 @@ export class UploadImgController {
         })
     }
 
-    @Post('/upload-many')
+    @Post('many')
     @UseInterceptors(AnyFilesInterceptor())
     async uploadManyImage(@UploadedFiles() files: Array<Express.Multer.File>, @Res() response) {
         try {

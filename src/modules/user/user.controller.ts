@@ -1,13 +1,9 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { VerifyToken } from "src/config/verifyToken";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { User } from "src/models/user.model";
 import { UserService } from "./user.service";
 import * as jwt from 'jsonwebtoken';
-import { FileInterceptor } from "@nestjs/platform-express";
-import { UploadImgService } from "src/upload-img/upload-img.service";
 import { CreateUserDto } from "src/dto/user.dto";
-import { response } from "express";
-import {getPagingData } from "src/config/pagination";
+import { getPagingData } from "src/config/pagination";
 
 @Controller("user")
 export class UserController {
@@ -24,14 +20,15 @@ export class UserController {
   //   });
   // }
 
-  @Post('/new')
+  @Post()
   async createUser(@Res() response, @Body() user: CreateUserDto) {
-    console.log("user", user);
+
     try {
       const result = await this.userSevice.createUser(user);
-      return response.status(HttpStatus.CREATED).json({
-        result: result,
+      if(result) return response.status(HttpStatus.CREATED).json({
         message: "Created Successfully!!!",
+        result: result,
+        
       })
     } catch (error) {
       return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -46,16 +43,16 @@ export class UserController {
     @Query('lastName') lastName: string,
     @Query('size') size: number,
     @Query('page') page: number,
-    
+
   ) {
     try {
 
       let offset = 0 + (page - 1) * size;
       console.log(size, page, offset);
 
-      const listUser = await this.userSevice.getAllUsers(lastName, Number(size), offset );
+      const listUser = await this.userSevice.getAllUsers(lastName, Number(size), offset);
       console.log("length", listUser);
-      const result = getPagingData(listUser, page, size); 
+      const result = getPagingData(listUser, page, size);
 
       return response.status(HttpStatus.OK).json({
         message: "Success",
@@ -83,6 +80,39 @@ export class UserController {
     }
   }
 
+  @Put('/:id')
+  async updateUser(
+    @Res() response,
+    @Body() body,
+    @Param('id') id: number
+  ) {
+    try {
+      const result = await this.userSevice.updateUser(body, id);
+      response.status(HttpStatus.OK).json({
+        message: "SUCCESSFULLY!!!",
+        result: result
+      })
+    } catch (error) {
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error.message
+      })
+    }
+  }
+
+  @Delete('/:id')
+  async deleteUser(@Res() response, @Param('id') id: number) {
+    try {
+      const result = await this.userSevice.deleteUser(id);
+      response.status(HttpStatus.OK).json({
+        message: "SUCCESSFULLY!!!",
+        result: result
+      })
+    } catch (error) {
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error.message
+      })
+    }
+  }
 
   @Post('/register')
   async register(@Res() response, @Body() user: User) {

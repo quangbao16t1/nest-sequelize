@@ -11,10 +11,11 @@ import {
   Table,
   UpdatedAt,
 } from "sequelize-typescript";
+import { Booking } from "./booking.model";
 import { Role } from "./role.model";
 
 @Table({ tableName: "users" })
-export class User extends Model {
+export class User extends Model<User> {
   @Column({
     primaryKey: true,
     autoIncrement: true,
@@ -66,9 +67,15 @@ export class User extends Model {
 
   @UpdatedAt
   @AllowNull(true)
-  @Column
+  @Column({
+    defaultValue: null
+  })
   updatedAt?: Date;
 
   @BelongsTo(() => Role)
   role: Role;
+
+  @HasMany(() => Booking)
+  bookings: Booking[];
+
 }
