@@ -3,7 +3,7 @@ import { response } from 'express';
 import { TableCreateDto, TableUpdateDto } from 'src/dto/table.dto';
 import { TableService } from './table.service';
 
-@Controller('table')
+@Controller('tables')
 export class TableController {
     constructor(
         private readonly tableService: TableService

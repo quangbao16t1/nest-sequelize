@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import { CreateUserDto } from "src/dto/user.dto";
 import { getPagingData } from "src/config/pagination";
 
-@Controller("user")
+@Controller("users")
 export class UserController {
   constructor(
     private readonly userSevice: UserService,
@@ -48,10 +48,8 @@ export class UserController {
     try {
 
       let offset = 0 + (page - 1) * size;
-      console.log(size, page, offset);
 
       const listUser = await this.userSevice.getAllUsers(lastName, Number(size), offset);
-      console.log("length", listUser);
       const result = getPagingData(listUser, page, size);
 
       return response.status(HttpStatus.OK).json({
@@ -65,13 +63,15 @@ export class UserController {
     }
   }
 
-  @Get('/:id')
+  @Get(':id')
   async getUserById(@Res() response, @Param('id') id: number) {
     try {
       const result = await this.userSevice.getUserById(id);
       response.status(HttpStatus.OK).json({
-        message: " Successfully!!!",
-        result: result
+        statusCode: HttpStatus.OK,
+        message: "SUCCESSFULLY!!!",
+        data: result,
+        error: []
       })
     } catch (error) {
       response.json({
@@ -80,7 +80,7 @@ export class UserController {
     }
   }
 
-  @Put('/:id')
+  @Put(':id')
   async updateUser(
     @Res() response,
     @Body() body,
@@ -99,7 +99,7 @@ export class UserController {
     }
   }
 
-  @Delete('/:id')
+  @Delete(':id')
   async deleteUser(@Res() response, @Param('id') id: number) {
     try {
       const result = await this.userSevice.deleteUser(id);
@@ -114,7 +114,7 @@ export class UserController {
     }
   }
 
-  @Post('/register')
+  @Post('register')
   async register(@Res() response, @Body() user: User) {
     try {
       await this.userSevice.register(user);
@@ -128,7 +128,7 @@ export class UserController {
     }
   }
 
-  @Post('/active')
+  @Post('active')
   async activeEmail(@Res() response, @Body('active_token') active_token: string) {
     try {
       console.log(active_token);
@@ -143,7 +143,7 @@ export class UserController {
     }
   }
 
-  @Post('/login')
+  @Post('login')
   async login(@Res() response, @Body() body) {
     try {
       const { email, password } = body
@@ -165,7 +165,7 @@ export class UserController {
     }
   }
 
-  @Post('/refresh')
+  @Post('refresh')
   async refreshToken(@Res() response, @Req() request) {
     try {
       const rf_token = request.cookies.refreshtoken;
@@ -184,7 +184,7 @@ export class UserController {
     }
   }
 
-  @Post('/forgot')
+  @Post('forgot')
   async forgotPassword(@Res() response, @Body() body) {
     try {
 
@@ -203,7 +203,7 @@ export class UserController {
     }
   }
 
-  @Post('/reset')
+  @Post('reset')
   async restPassword(@Res() response, @Req() request, @Body() body) {
     try {
       const { password } = body
@@ -221,7 +221,7 @@ export class UserController {
     }
   }
 
-  @Get('/logout')
+  @Get('logout')
   async logout(@Res() response, @Req() request) {
     try {
       response.clearCookie('refreshtoken', { path: '/user/refresh' })

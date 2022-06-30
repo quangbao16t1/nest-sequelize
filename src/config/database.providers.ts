@@ -18,7 +18,7 @@ export const databaseProviders = [
       });
       sequelize.addModels([Role, User, Tables, Booking]);
       await sequelize.sync( {
-        force: false
+        alter: false
       }).then(() => {
         console.log("connect database success!!");
       });

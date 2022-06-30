@@ -16,7 +16,7 @@ export class BookingService {
         if (!date) return await this.bookingRepository.findAndCountAll({
             attributes: [
                 'id',
-                'userId', 'tableId', 'startTime', 'endTime', 
+                'userId', 'tableId', 'startTime', 'endTime',
                 [sequelize.fn('date_format', sequelize.col('date'), '%Y-%m-%d'), 'date'],
                 'status', 'name', 'phoneNumber', 'email',
                 // [sequelize.fn('date_format', sequelize.col('createdAt'), '%Y-%m-%d'), 'createdAt'],
@@ -35,7 +35,7 @@ export class BookingService {
         return await this.bookingRepository.findAndCountAll({
             attributes: [
                 'id',
-                'userId', 'tableId', 'startTime', 'endTime', 
+                'userId', 'tableId', 'startTime', 'endTime',
                 [sequelize.fn('date_format', sequelize.col('date'), '%Y-%m-%d'), 'date'],
                 'status', 'name', 'phoneNumber', 'email',
             ],
@@ -55,7 +55,26 @@ export class BookingService {
         });
     }
 
-    async createBooking(booking: Booking) {
+    async createBooking(booking: Booking): Promise<Booking> {
         return await this.bookingRepository.create(booking);
+    }
+
+    async getBookingById(id: number): Promise<Booking> {
+        return await this.bookingRepository.findOne({ where: { id: id } });
+    }
+
+    async updateBooking(booking: Booking, id: number): Promise<Booking> {
+        const bkUpdate = await this.bookingRepository.findOne({ where: { id: id } });
+        if (!bkUpdate) throw new Error();
+        Object.assign(bkUpdate, booking);
+
+        return bkUpdate.save();
+    }
+
+    async deleteBooking(id) {
+        const bkDelete = await this.bookingRepository.findOne({ where: { id: id } });
+        if (!bkDelete) throw new Error();
+
+        return await this.bookingRepository.destroy({ where: { id: id } });
     }
 }

@@ -1,4 +1,3 @@
-import { format } from "path";
 import { Table, Column, Model, HasMany, CreatedAt, AllowNull, UpdatedAt, IsEmail, BelongsTo, ForeignKey } from "sequelize-typescript";
 import { Tables } from "./tables.model";
 import { User } from "./user.model";
@@ -13,11 +12,15 @@ export class Booking extends Model<Booking> {
     id: number;
 
     @ForeignKey(() => User)
-    @Column
+    @Column({
+        onDelete: 'set null'
+    })
     userId: number;
 
     @ForeignKey(() => Tables)
-    @Column
+    @Column({
+        onDelete: 'set null'
+    })
     tableId: number;
 
     @Column
@@ -58,5 +61,5 @@ export class Booking extends Model<Booking> {
     user: User
 
     @BelongsTo(() => Tables)
-    table: Tables
+    table: Tables;
 }

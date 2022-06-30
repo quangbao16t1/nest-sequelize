@@ -5,12 +5,8 @@ import { AppService } from "./app.service";
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get("/api")
+  @Get()
   getHello(): string {
-    return this.appService.getHello();
-  }
-  @Get("/sss")
-  getHello1(): string {
     return this.appService.getHello();
   }
 }
