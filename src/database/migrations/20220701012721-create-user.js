@@ -2,6 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+
     return await queryInterface.createTable('users', {
       id: {
         type: Sequelize.INTEGER,
@@ -26,10 +27,42 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      phoneNumber: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      avatar: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      gender: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      birthday: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      // roleId: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: false,
+        
+      // },
     });
+
   },
 
   async down(queryInterface, Sequelize) {
-    return await queryInterface.dropTable('bookings');
+
+    return await queryInterface.dropTable('users');
+
   }
 };
